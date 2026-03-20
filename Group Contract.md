@@ -2,6 +2,10 @@
 
 Section 1
 
+After an open and honest discussion as a team, we have all come to a mutual agreement that our grade will be shared equally across the entire group. This was not a decision that was handed to us it was one that we made together, which makes it even more meaningful. Every one of us jumped on our Teams group chat, talked it through, and collectively decided that we would stand behind each other's contributions.
+
+This agreement reflects the trust and respect we have built for one another throughout this process. We understand that each of us brings different strengths to the table, and rather than competing or comparing, we chose to complement each other. Whatever mark we receive at the end of this unit, we receive it together as a team that planned together, worked together, and delivered together.
+
 We will be using teams to communicate. There will be regular meetings to check on each other’s progress. If people can’t make the meeting, then they can communicate within the group beforehand. Team will work at their own pace but there will be universal meetings to discuss and report where they are in their work. If there’s conflict within the group and it hinders the group’s work, then it would involve the teaching team. The work mustn’t breach the academic integrity policies. AI-generated code will be reviewed, attributed and understood by all members by overall testing and overview of the code to ensure that it aligns with the project’s requirements.
 
 
