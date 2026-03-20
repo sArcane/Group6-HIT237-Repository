@@ -25,3 +25,92 @@ The first milestone will be on the 6th and will be for planning what each person
 The dates for the checkpoints will be on the 9th which is a week before the assessment is due and another on the 13th 2 days before its due. The first one will be to make sure everyone has understood what their task and has started working on it. The second checkpoint is to make sure we are on track to finishing on time.
 
 The 14th will be an integration point where we will come together, merge and test our code.
+
+Assessment 4:
+
+Task Breakdown:
+
+-	Expand on the Django application in assessment 2 with new features, exception handling, authentication and service layer.
+-	Updating the Architectural Decision Record (ADR) to show the progress of the application’s design
+-	Include in the ADR justification on the testing strategy
+-	A test suite that covers the models, services, views, and permission boundaries 
+-	An updated project plan, contract and diagrams
+
+Milestones and Checkpoints
+
+Milestone 1 
+
+25th – 30th of April
+
+-	Plan the scope of the project and the new features
+-	Review ADR and Previous application
+-	Assign roles
+
+Checkpoint 1
+
+30th of April
+
+-	Plan and roles finalized
+
+Milestone 2
+
+1st-10th of May
+
+-	Create the authentication system
+-	Create the service layer architecture
+
+Checkpoint 2
+
+10th of May
+
+-	Review of the newly created systems and architectures
+-	Updated ADR
+
+Milestone 3
+
+11th-15th of May
+
+-	Create and new planned features
+-	Add Exception handling
+
+Checkpoint 3
+
+15th of May
+
+-	New features added
+-	Exception handling working
+-	Updated ADR
+
+Milestone 4
+
+16th-20th of May
+
+-	Integrate previously created features and models
+-	Run tests of the application and its features
+-	Compile a test suite
+-	Update ADR with testing strategy
+
+Checkpoint 4
+
+20th of May
+
+-	Tests have been run and any issues have been fixed
+-	Update ADR
+
+Milestone 5 
+
+21st – 25th of May
+
+-	Finalize the documentation and application
+-	Create a walkthrough of the code
+-	Submit material
+
+Checkpoint 5
+
+25th of May
+
+-	Walkthrough has been create
+-	The application and documentation have been reviewed
+-	ADR is finalized
+-	Work has been submitted
+
