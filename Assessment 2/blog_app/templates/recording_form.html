@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-container">
+    <h2>Log a New Species Call</h2>
+    <p>Ensure audio is clear and location is accurate.</p>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- AI/Django scaffolds the fields based on your Model -->
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-save">Submit Recording</button>
+            <a href="{% url 'recording_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
