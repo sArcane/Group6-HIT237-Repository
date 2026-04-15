@@ -240,7 +240,7 @@ The recording_list.html template was created as a dashboard style activity timel
 A dashboard layout allows users to efficiently access the information and recordings.
 
 ### Code Reference
-'Assessment_2/blog_app/templates/recording_list.html
+- 'Assessment_2/blog_app/templates/recording_list.html
 
 ### Consequences
 
@@ -267,7 +267,7 @@ The recording_form.html template uses Django's form rendering instead of manuall
 Ensure consistency with teh frontend and backend validation rules, follows Django's DRY (Don’t Repeat Yourself) philosophy as it allows the html to remain skinny and ensures that the data is synced with the database
 
 ### Code Reference
-'Assessment_2/blog_app/templates/recording_form.html'
+- 'Assessment_2/blog_app/templates/recording_form.html'
 
 ### Consequences
 
@@ -295,7 +295,7 @@ The recording_detail.html template provides the audio of a recording, its metada
 Having a place that displays all of the information in one place allows users to make informed and educated decisions.
 
 ### Code Reference
-'Assessment_2/blog_app/templates/recording_details.html'
+- 'Assessment_2/blog_app/templates/recording_details.html'
 
 ### Consequences
 
