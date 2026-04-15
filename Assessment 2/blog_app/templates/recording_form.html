@@ -1,17 +1,113 @@
 {% extends 'base.html' %}
+
+{% block title %}Log a New Call | Species Tracker{% endblock %}
+
 {% block content %}
-<div class="form-container">
-    <h2>Log a New Species Call</h2>
-    <p>Ensure audio is clear and location is accurate.</p>
-    
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}  <!-- AI/Django scaffolds the fields based on your Model -->
-        
-        <div class="form-actions">
-            <button type="submit" class="btn-save">Submit Recording</button>
-            <a href="{% url 'recording_list' %}" class="btn-cancel">Cancel</a>
+<div class="container">
+    <!-- Header -->
+    <div class="mb-5">
+        <h1 class="display-5 fw-bold text-success">Log a New Species Call</h1>
+        <p class="text-muted">Ensure audio is clear and location is accurate for reliable species identification.</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Please fix the errors below:</strong>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Species Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.species.id_for_label }}" class="form-label">{{ form.species.label }}</label>
+                            {{ form.species }}
+                            {% if form.species.errors %}
+                                <div class="invalid-feedback d-block">{{ form.species.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Location Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">{{ form.location.label }}</label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">{{ form.location.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Audio File Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.audio_file.id_for_label }}" class="form-label">{{ form.audio_file.label }}</label>
+                            {{ form.audio_file }}
+                            <small class="form-text text-muted d-block mt-1">Supported formats: MP3, WAV, FLAC, OGG</small>
+                            {% if form.audio_file.errors %}
+                                <div class="invalid-feedback d-block">{{ form.audio_file.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date Recorded Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.date_recorded.id_for_label }}" class="form-label">{{ form.date_recorded.label }}</label>
+                            {{ form.date_recorded }}
+                            {% if form.date_recorded.errors %}
+                                <div class="invalid-feedback d-block">{{ form.date_recorded.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confidence Score Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.confidence_score.id_for_label }}" class="form-label">{{ form.confidence_score.label }}</label>
+                            {{ form.confidence_score }}
+                            <small class="form-text text-muted d-block mt-1">Enter a value between 0.0 (not confident) and 1.0 (very confident)</small>
+                            {% if form.confidence_score.errors %}
+                                <div class="invalid-feedback d-block">{{ form.confidence_score.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                            <a href="{% url 'blog_app:recording-list' %}" class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Submit Recording
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Recording Requirements</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Audio File:</strong> MP3, WAV, FLAC, or OGG format</li>
+                        <li class="mb-2"><strong>Species:</strong> Select from the dropdown list</li>
+                        <li class="mb-2"><strong>Location:</strong> Choose the recording location</li>
+                        <li class="mb-2"><strong>Date & Time:</strong> When the recording was made</li>
+                        <li><strong>Confidence Score:</strong> Your confidence in the identification (0.0 - 1.0)</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
