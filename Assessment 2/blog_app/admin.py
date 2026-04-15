@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Species, Location, Recording, AnomalyFlag
 
-# Register your models here.
+admin.site.register(Species)
+admin.site.register(Location)
+admin.site.register(Recording)
+admin.site.register(AnomalyFlag)
