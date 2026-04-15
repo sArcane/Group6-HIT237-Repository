@@ -1,4 +1,4 @@
-#Architectual Design Records
+# Architectual Design Records
 
 ## ADR-001: Use seperate models such as "species, "location", "Recording", and "AnomalyFlag"
 
