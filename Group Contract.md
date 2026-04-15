@@ -18,13 +18,23 @@ Task Breakdown
 
 Assessment 2 requires our group to create and deliver a working Django project to our in our GitHub repository alongside an Architectural Decision Record which contains every major design decision we make with context, considered options, the approach to the design decisions, and references to the code where we made that decision. It also requires us to update this contract and supply all relevant, supplementary materials.
 
-Milestones Checkpoints
+The project was started on the 15th of April, starting with allocating roles to each member such as creating the models, views, templates and documentation.
 
-The first milestone will be on the 6th and will be for planning what each person will do and significant detail we want to have in our project. The next milestone will be on the 15th. This will be for making sure everyone is ready to submit the project we have made.
+Roles of each member:
 
-The dates for the checkpoints will be on the 9th which is a week before the assessment is due and another on the 13th 2 days before its due. The first one will be to make sure everyone has understood what their task and has started working on it. The second checkpoint is to make sure we are on track to finishing on time.
+Models: Harvey Wiltshire
 
-The 14th will be an integration point where we will come together, merge and test our code.
+Views: Christian Jay Guarino Borja
+
+Template: Trung Hieu Jamie Ngo
+
+Documentation: Anh Khoa Pham
+
+Each member also fulfilled other responsibilites such as setting up the repository, planning, setting up the admin, setting up the url, creating supplimentary materials and providing ideas for the ADRs.
+
+Regarding the task completions, models needed to be discussed first. Once the models were created the then the Views and Templates could be made properly. Throughout this ideas and concepts for the ADRs were being discussed and created. The Models, views, Templates and other files were then integrated together and troubleshooted to create a coherent website. 
+
+On the 16th of April the project will recieve its final review by the members and it will hencforth be submitted.
 
 Assessment 4:
 

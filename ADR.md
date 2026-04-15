@@ -214,3 +214,94 @@ Pros:
 Cons:
     - Slightly more indirection than simple function-based views.
     - Analytics responses rely on ORM-generated SQL that should be profiled if dataset grows significantly.
+
+---
+
+## ADR-006: Activity Timeline
+
+**Status:** Accepted
+
+### Context:
+The app needs a central page where users can view the submitted species recordings and be able to identify anomalies
+
+**Option 1: Create a simple list to display recordings**
+
+Pros:
+    - Easy to implement
+
+Cons:
+    - Too simple
+    - not expressive
+
+### Decision
+The recording_list.html template was created as a dashboard style activity timeline that shows the recordings with instant audio playback and shows flagged recordings
+
+### Rationale
+A dashboard layout allows users to efficiently access the information and recordings.
+
+### Code Reference
+'Assessment_2/blog_app/templates/recording_list.html
+
+### Consequences
+
+Pros:
+    - Faster data review and anomaly detection
+    - Improved usability for researchers
+
+Cons:
+    - More complex than a simple list
+
+---
+
+## ADR-007: Use of Django form rendering for recording submissions
+
+**Status:** Accepted
+
+### Context:
+The app needs a form interface for users to submit new recordings with the animal data
+
+### Decision
+The recording_form.html template uses Django's form rendering instead of manually coding each input
+
+### Rationale
+Ensure consistency with teh frontend and backend validation rules, follows Django's DRY (Don’t Repeat Yourself) philosophy as it allows the html to remain skinny and ensures that the data is synced with the database
+
+### Code Reference
+'Assessment_2/blog_app/templates/recording_form.html'
+
+### Consequences
+
+Pros:
+    - Cleaner and more maintainable forms
+    - Consistent validation with models
+
+Cons:
+    - Less flexibility than fully custom HTML forms
+
+---
+
+## ADR-008: Research Detail View
+
+**Status:** Accepted
+
+### Context:
+Researchers need a detailed page to review the recordings, anomalies, species data and metadata
+
+
+### Decision
+The recording_detail.html template provides the audio of a recording, its metadata, anomaly flags, and species details
+
+### Rationale
+Having a place that displays all of the information in one place allows users to make informed and educated decisions.
+
+### Code Reference
+'Assessment_2/blog_app/templates/recording_details.html'
+
+### Consequences
+
+Pros:
+    - Encapsulates related data from multiple models to easily link models
+    - Displays metadata, such as scientific names and conservation statuses to help researchers be informed in their decisions when flagging data.
+
+Cons:
+    - Complex template structure
