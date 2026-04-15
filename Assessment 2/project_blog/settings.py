@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-gmc1ic80v02kz@cfc!z90-o7o+9vr93leg(q)2ly1&7(zu4p)6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Allow localhost and testing environments
+# For production, update this to your specific domain
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -55,7 +57,7 @@ ROOT_URLCONF = 'project_blog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,3 +118,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'blog_app' / 'static']
+
+# Media files (User uploads like audio files)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
