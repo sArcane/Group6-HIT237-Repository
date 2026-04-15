@@ -1,0 +1,122 @@
+/* --- GLOBAL STYLES --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Navigation adjustments */
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+/* --- TIMELINE (LIST VIEW) STYLES --- */
+
+/* Timeline card styling */
+.recording-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    border-left: 5px solid #198754; /* Green border for "Species" theme */
+}
+
+.recording-card:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Audio player styling */
+audio {
+    width: 100%;
+    margin-top: 10px;
+    /* This cool filter makes the player look "scientific/dark" */
+    filter: sepia(20%) saturate(70%) grayscale(100%) contrast(99%) invert(12%); 
+}
+
+/* Anomaly Flag styling */
+.anomaly-flag {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 10px;
+    border-radius: 5px;
+    color: #856404;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+/* --- FORM (CREATE VIEW) STYLES --- */
+
+.form-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    max-width: 700px;
+    margin: 40px auto;
+}
+
+/* Styles the Django-generated labels and inputs */
+.form-container p {
+    margin-bottom: 20px;
+}
+
+.form-container label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2e7d32;
+}
+
+.form-container input, 
+.form-container select, 
+.form-container textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #fdfdfd;
+}
+
+/* Button Styling */
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-save {
+    background-color: #2e7d32;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save:hover {
+    background-color: #1b5e20;
+}
+
+.btn-cancel {
+    color: #6c757d;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.9rem;
+}
+
+/* --- FOOTER --- */
+.site-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 30px 0;
+    text-align: center;
+    color: #6c757d;
+    margin-top: 60px;
+}

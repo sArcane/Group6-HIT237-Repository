@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- The block title allows sub-pages like the timeline to change the tab name -->
+    <title>{% block title %}Species Call Tracker{% endblock %}</title>
+    
+    {% load static %}
+    <!-- Your main CSS file -->
+    <link rel="stylesheet" href="{% static 'blog_app/styles.css' %}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="/" class="logo">SpeciesTracker</a>
+                <div class="nav-links">
+                    <!-- Links to your required features -->
+                    <a href="{% url 'recording_list' %}" class="navbar-link">Activity Timeline</a>
+                    <a href="{% url 'recording_create' %}" class="navbar-link">Log a Call</a>
+                    <a href="#" class="navbar-link">Anomalies</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- This is where your timeline and upload forms will appear -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Bioacoustic Research Project. All rights reserved.</p>
+            <p><small>Citizen Science Species Call Monitoring System</small></p>
+        </div>
+    </footer>
+</body>
+</html>

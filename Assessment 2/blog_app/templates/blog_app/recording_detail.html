@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="detail-view">
+    <h1>Recording Details: #{{ recording.id }}</h1>
+    <hr>
+    <div class="data-grid">
+        <div class="audio-section">
+            <audio controls class="large-player">
+                <source src="{{ recording.audio_file.url }}">
+            </audio>
+        </div>
+        <div class="meta-section">
+            <p><strong>Species:</strong> {{ recording.species.name }} (<i>{{ recording.species.scientific_name }}</i>)</p>
+            <p><strong>Status:</strong> {{ recording.species.get_conservation_status_display }}</p>
+            <p><strong>Confidence:</strong> {{ recording.confidence_score }}</p>
+        </div>
+    </div>
+
+    <!-- Section for Anomalies -->
+    <div class="anomaly-section">
+        <h3>Researcher Flags</h3>
+        {% for flag in recording.anomaly_flags.all %}
+            <div class="flag-item">
+                <strong>{{ flag.get_anomaly_type_display }}</strong>: {{ flag.description }}
+                <br><small>Flagged by {{ flag.flagged_by.username }}</small>
+            </div>
+        {% empty %}
+            <p>No anomalies detected in this recording.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
