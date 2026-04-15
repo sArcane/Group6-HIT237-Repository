@@ -8,7 +8,14 @@
 
 ### 1. Clone and Navigate to Project
 ```bash
-cd Assessment\ 2/
+# Clone the repository
+git clone https://github.com/YOUR-USERNAME/Group6-HIT237-Repository.git
+
+# Navigate to the project folder
+cd Group6-HIT237-Repository
+
+# Go to Assessment 2 directory
+cd "Assessment 2"
 ```
 
 ### 2. Create Virtual Environment
