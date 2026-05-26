@@ -33,6 +33,11 @@ class Species(models.Model):
 
     objects = SpeciesManager()
 
+    class Meta:
+        permissions = [
+            ('view_species_analytics', 'Can view species analytics dashboard'),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -82,6 +87,12 @@ class Recording(models.Model):
 
     objects = RecordingManager()
 
+    class Meta:
+        permissions = [
+            ('view_all_recordings', 'Can view all recordings across users'),
+            ('review_recordings', 'Can review flagged recordings and anomalies'),
+        ]
+
     def __str__(self):
         return f"{self.species} - {self.date_recorded}"
 
@@ -100,6 +111,11 @@ class AnomalyFlag(models.Model):
     anomaly_type = models.CharField(max_length=20, choices=ANOMALY_TYPE_CHOICES)
     description = models.TextField(blank=True)
     flagged_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        permissions = [
+            ('view_all_anomaly_flags', 'Can view anomaly flags across all recordings'),
+        ]
 
     def __str__(self):
         return f"{self.anomaly_type} - {self.recording.id}"

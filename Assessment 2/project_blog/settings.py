@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'blog_app.middleware.AuthorizationAuditMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -124,3 +125,7 @@ STATICFILES_DIRS = [BASE_DIR / 'blog_app' / 'static']
 # Media files (User uploads like audio files)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = '/admin/login/'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

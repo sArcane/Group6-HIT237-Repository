@@ -79,7 +79,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    {% if recording.anomaly_flags.all %}
+                    {% if recording.anomaly_flags.all and can_review_recordings %}
                         <div class="list-group list-group-flush">
                             {% for flag in recording.anomaly_flags.all %}
                             <div class="list-group-item">
@@ -92,6 +92,8 @@
                             </div>
                             {% endfor %}
                         </div>
+                    {% elif recording.anomaly_flags.all %}
+                        <p class="text-muted mb-0">This recording is flagged. Detailed flag notes are restricted to reviewer accounts.</p>
                     {% else %}
                         <p class="text-muted mb-0">✓ No anomalies detected. This recording has passed quality review.</p>
                     {% endif %}

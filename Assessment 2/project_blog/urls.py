@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('blog_app.urls')),
+    path('api/', include(('blog_app.urls', 'blog_app'), namespace='blog_app_api')),
+    path('', RedirectView.as_view(url='/recordings/', permanent=False), name='home'),
+    path('', include(('blog_app.urls', 'blog_app'), namespace='blog_app')),
 ]
 
 # Serve media files during development

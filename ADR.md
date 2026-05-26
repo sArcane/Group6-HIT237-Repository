@@ -305,3 +305,81 @@ Pros:
 
 Cons:
     - Complex template structure
+
+---
+
+## ADR-009: User Authentication and Object-Level Authorization Architecture
+
+**Status:** Accepted
+
+### Context:
+The project requires controlled access to recordings, anomaly notes, and analytics data. The previous implementation allowed broad read access through list/detail pages and did not explicitly enforce model-level permissions for cross-user access.
+
+### Threat Model and Security Risks:
+- Insecure direct object references (IDOR): a user could attempt to access another user's recording by changing IDs in URLs.
+- Sensitive data leakage: anomaly descriptions can include reviewer notes that should not be exposed to all authenticated users.
+- Privilege escalation: general authenticated users should not automatically gain analytics visibility or reviewer capabilities.
+- Weak observability for denied access: without explicit denial logging, abuse patterns are hard to detect during testing.
+
+### Alternatives Considered:
+**Option 1: Role checks only in templates**
+
+Pros:
+        - Fast to implement
+
+Cons:
+        - No backend enforcement
+        - Vulnerable to direct URL access
+
+**Option 2: Endpoint-level login only (no object scoping)**
+
+Pros:
+        - Basic access control
+
+Cons:
+        - Authenticated users can still enumerate other users' objects
+        - No granular reviewer controls
+
+### Decision
+Implement a layered architecture across models, views, and middleware:
+- Models define explicit custom permissions for cross-user viewing, review operations, and analytics access.
+- Views enforce authentication and object-level queryset scoping via a dedicated policy module.
+- Middleware audits authorization denials and adds conservative browser policy headers.
+
+### Rationale
+This architecture applies defense in depth:
+- Model permissions provide a stable authorization vocabulary (`view_all_recordings`, `review_recordings`, `view_species_analytics`).
+- View-layer policy enforces owner-based access by default and grants broader access only with explicit permissions.
+- Middleware records denied requests for security review and supports threat-informed monitoring.
+
+The approach is designed to minimize accidental data exposure while preserving clear paths for privileged reviewer workflows.
+
+### Code Trace (Models -> Views -> Middleware)
+- Models and permission definitions:
+    - 'Assessment 2/blog_app/models.py'
+    - 'Assessment 2/blog_app/migrations/0002_authorization_permissions.py'
+- Authorization policy and object-level scoping:
+    - 'Assessment 2/blog_app/authorization.py'
+- Enforced in views (login + scoped queryset + permission checks):
+    - 'Assessment 2/blog_app/views.py'
+- Denial auditing and policy headers:
+    - 'Assessment 2/blog_app/middleware.py'
+- Middleware registration and auth defaults:
+    - 'Assessment 2/project_blog/settings.py'
+
+### Consequences
+
+Pros:
+        - Prevents cross-user recording access by default
+        - Protects reviewer-only anomaly details and analytics data
+        - Improves traceability of authorization denials
+        - Provides clear, testable permission boundaries
+
+Cons:
+        - Additional complexity in permission setup and test fixtures
+        - More explicit user onboarding needed to assign reviewer permissions
+
+### Verification Evidence
+- Focused authorization tests were added and validated:
+    - 'Assessment 2/blog_app/test_authorization.py'
+    - Coverage includes login requirement, owner-scoped queries, reviewer access, and analytics permission enforcement.

@@ -1,7 +1,7 @@
 from datetime import timedelta
 from tempfile import TemporaryDirectory
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -62,6 +62,7 @@ class RecordingViewTests(MediaIsolatedTestCase):
 		super().setUp()
 		self.user = User.objects.create_user(username='observer', password='pass12345')
 		self.flagger = User.objects.create_user(username='qa_user', password='pass12345')
+		self.client.force_login(self.user)
 
 		self.magpie = Species.objects.create(name='Magpie', scientific_name='Gymnorhina tibicen', conservation_status='LC')
 		self.owl = Species.objects.create(name='Barn Owl', scientific_name='Tyto alba', conservation_status='LC')
@@ -94,27 +95,34 @@ class RecordingViewTests(MediaIsolatedTestCase):
 		)
 
 	def test_recording_list_view_supports_filters(self):
+		review_perm = Permission.objects.get(codename='review_recordings')
+		self.user.user_permissions.add(review_perm)
+
 		response = self.client.get(reverse('blog_app:recording-list'), {'min_confidence': '0.8', 'flagged_only': 'true'})
 		self.assertEqual(response.status_code, 200)
 
-		payload = response.json()
-		self.assertEqual(payload['count'], 1)
-		self.assertEqual(payload['results'][0]['id'], self.recording_1.id)
+		recordings = list(response.context['recordings'])
+		self.assertEqual(len(recordings), 1)
+		self.assertEqual(recordings[0].id, self.recording_1.id)
 
 	def test_recording_detail_view_returns_anomalies(self):
 		response = self.client.get(reverse('blog_app:recording-detail', kwargs={'pk': self.recording_1.id}))
 		self.assertEqual(response.status_code, 200)
 
-		payload = response.json()
-		self.assertEqual(payload['id'], self.recording_1.id)
-		self.assertEqual(payload['species']['name'], 'Magpie')
-		self.assertEqual(len(payload['anomalies']), 1)
+		recording = response.context['recording']
+		self.assertEqual(recording.id, self.recording_1.id)
+		self.assertEqual(recording.species.name, 'Magpie')
+		self.assertEqual(recording.anomaly_flags.count(), 1)
 
 	def test_species_analytics_returns_aggregates(self):
+		analytics_perm = Permission.objects.get(codename='view_species_analytics')
+		self.user.user_permissions.add(analytics_perm)
+
 		response = self.client.get(reverse('blog_app:species-analytics'))
 		self.assertEqual(response.status_code, 200)
 
-		payload = response.json()
-		self.assertEqual(payload['summary']['total_recordings'], 2)
-		self.assertEqual(payload['summary']['flagged_count'], 1)
-		self.assertGreaterEqual(len(payload['species_rankings']), 2)
+		summary = response.context['summary']
+		species_rankings = list(response.context['species_rankings'])
+		self.assertEqual(summary['total_recordings'], 2)
+		self.assertEqual(summary['flagged_count'], 1)
+		self.assertGreaterEqual(len(species_rankings), 2)

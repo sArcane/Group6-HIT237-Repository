@@ -70,6 +70,7 @@
                     {% if recording.flagged %}
                     <div class="mt-3 anomaly-flag">
                         <strong>⚠️ ANOMALY DETECTED:</strong> This entry has been flagged by a researcher.
+						{% if can_review_recordings %}
                         <div class="ms-4 mt-1 small">
                             {% for flag in recording.anomaly_flags.all %}
                                 <span>• {{ flag.get_anomaly_type_display }}: {{ flag.description }}</span><br>
@@ -77,6 +78,11 @@
                                 <span>Pending detailed review notes.</span>
                             {% endfor %}
                         </div>
+						{% else %}
+						<div class="ms-4 mt-1 small">
+							<span>Detailed anomaly notes are restricted to reviewer accounts.</span>
+						</div>
+						{% endif %}
                     </div>
                     {% endif %}
                 </div>
