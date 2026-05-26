@@ -1,13 +1,15 @@
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Avg, Count, Q
-from django.shortcuts import render, redirect
 from django.http import Http404
-from django.core.exceptions import PermissionDenied
+from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Recording, Species
-from .forms import RecordingForm
 from .authorization import RecordingAccessPolicy
+from .forms import RecordingForm
+from .models import Recording, Species
+from .services import flag_recording, review_recording, submit_recording
 
 
 class RecordingQuerysetMixin:
@@ -61,31 +63,66 @@ class RecordingDetailView(LoginRequiredMixin, RecordingQuerysetMixin, View):
 
 
 class RecordingCreateView(LoginRequiredMixin, View):
-	def _assert_create_permission(self, user):
-		if not RecordingAccessPolicy.can_create_recording(user):
-			raise PermissionDenied('You do not have permission to submit recordings.')
-
 	def get(self, request):
-		self._assert_create_permission(request.user)
+		if not RecordingAccessPolicy.can_create_recording(request.user):
+			raise PermissionDenied('You do not have permission to submit recordings.')
 		form = RecordingForm()
-		context = {'form': form}
-		return render(request, 'recording_form.html', context)
+		return render(request, 'recording_form.html', {'form': form})
 
 	def post(self, request):
-		self._assert_create_permission(request.user)
 		form = RecordingForm(request.POST, request.FILES)
 		if form.is_valid():
-			# Save the recording with the current user
-			recording = form.save(commit=False)
-			recording.user = request.user
-			recording.save()
-			
-			# Redirect to the detail page
-			return redirect('blog_app:recording-detail', pk=recording.pk)
-		else:
-			# Show form with errors
-			context = {'form': form, 'errors': form.errors}
-			return render(request, 'recording_form.html', context)
+			try:
+				recording = submit_recording(
+					user=request.user,
+					species_id=form.cleaned_data['species'].pk,
+					location_id=form.cleaned_data['location'].pk,
+					audio_file=form.cleaned_data['audio_file'],
+					date_recorded=form.cleaned_data['date_recorded'],
+					confidence_score=form.cleaned_data['confidence_score'],
+				)
+				return redirect('blog_app:recording-detail', pk=recording.pk)
+			except (ValidationError, PermissionDenied) as e:
+				messages.error(request, str(e))
+				return redirect('blog_app:recording-list')
+		context = {'form': form, 'errors': form.errors}
+		return render(request, 'recording_form.html', context)
+
+
+class FlagRecordingView(LoginRequiredMixin, View):
+	"""POST-only view. Reviewer submits an anomaly flag on a recording."""
+	def post(self, request, pk):
+		anomaly_type = request.POST.get('anomaly_type', '')
+		description = request.POST.get('description', '')
+		try:
+			flag_recording(
+				user=request.user,
+				recording_id=pk,
+				anomaly_type=anomaly_type,
+				description=description,
+			)
+			messages.success(request, 'Recording flagged successfully.')
+		except PermissionDenied as e:
+			messages.error(request, str(e))
+		except ValidationError as e:
+			messages.error(request, e.message)
+		return redirect('blog_app:recording-detail', pk=pk)
+
+
+class ReviewRecordingView(LoginRequiredMixin, View):
+	"""POST-only view. Reviewer clears all flags and marks a recording as reviewed."""
+	def post(self, request, pk):
+		try:
+			review_recording(
+				user=request.user,
+				recording_id=pk,
+			)
+			messages.success(request, 'Recording reviewed and flags cleared.')
+		except PermissionDenied as e:
+			messages.error(request, str(e))
+		except ValidationError as e:
+			messages.error(request, e.message)
+		return redirect('blog_app:recording-detail', pk=pk)
 
 
 class SpeciesAnalyticsView(LoginRequiredMixin, View):

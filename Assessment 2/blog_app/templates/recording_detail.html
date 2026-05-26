@@ -115,7 +115,7 @@
             </div>
 
             <!-- Statistics Card -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">Quality Metrics</h5>
                 </div>
@@ -130,6 +130,40 @@
                     </p>
                 </div>
             </div>
+
+            {% if can_review_recordings %}
+            <!-- Reviewer Actions Card -->
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Reviewer Actions</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Flag Form -->
+                    <form method="post" action="{% url 'blog_app:recording-flag' pk=recording.pk %}" class="mb-3">
+                        {% csrf_token %}
+                        <label class="form-label fw-bold">Flag an Anomaly</label>
+                        <select name="anomaly_type" class="form-select form-select-sm mb-2" required>
+                            <option value="" disabled selected>Select anomaly type…</option>
+                            <option value="NOISE">Excessive Noise</option>
+                            <option value="DISTORTION">Audio Distortion</option>
+                            <option value="MISSING_DATA">Missing Data</option>
+                            <option value="ENVIRONMENTAL">Environmental Interference</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <textarea name="description" class="form-control form-control-sm mb-2" rows="2" placeholder="Optional description…"></textarea>
+                        <button type="submit" class="btn btn-danger btn-sm w-100">Submit Flag</button>
+                    </form>
+
+                    <!-- Review / Clear Flags Form -->
+                    {% if recording.flagged %}
+                    <form method="post" action="{% url 'blog_app:recording-review' pk=recording.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm w-100">Clear All Flags</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
