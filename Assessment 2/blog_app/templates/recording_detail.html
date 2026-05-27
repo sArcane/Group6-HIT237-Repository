@@ -79,7 +79,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    {% if recording.anomaly_flags.all and can_review_recordings %}
+                    {% if recording.anomaly_flags.all %}
                         <div class="list-group list-group-flush">
                             {% for flag in recording.anomaly_flags.all %}
                             <div class="list-group-item">
@@ -92,8 +92,6 @@
                             </div>
                             {% endfor %}
                         </div>
-                    {% elif recording.anomaly_flags.all %}
-                        <p class="text-muted mb-0">This recording is flagged. Detailed flag notes are restricted to reviewer accounts.</p>
                     {% else %}
                         <p class="text-muted mb-0">✓ No anomalies detected. This recording has passed quality review.</p>
                     {% endif %}
@@ -131,17 +129,14 @@
                 </div>
             </div>
 
-            {% if can_review_recordings %}
-            <!-- Reviewer Actions Card -->
-            <div class="card shadow-sm border-warning">
+            <!-- Flag Form - available to all logged-in users -->
+            <div class="card shadow-sm border-warning mb-4">
                 <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">Reviewer Actions</h5>
+                    <h5 class="mb-0">Flag an Anomaly</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Flag Form -->
-                    <form method="post" action="{% url 'blog_app:recording-flag' pk=recording.pk %}" class="mb-3">
+                    <form method="post" action="{% url 'blog_app:recording-flag' pk=recording.pk %}">
                         {% csrf_token %}
-                        <label class="form-label fw-bold">Flag an Anomaly</label>
                         <select name="anomaly_type" class="form-select form-select-sm mb-2" required>
                             <option value="" disabled selected>Select anomaly type…</option>
                             <option value="NOISE">Excessive Noise</option>
@@ -153,14 +148,39 @@
                         <textarea name="description" class="form-control form-control-sm mb-2" rows="2" placeholder="Optional description…"></textarea>
                         <button type="submit" class="btn btn-danger btn-sm w-100">Submit Flag</button>
                     </form>
+                </div>
+            </div>
 
-                    <!-- Review / Clear Flags Form -->
+            {% if can_review_recordings %}
+            <!-- Reviewer Actions - restricted to reviewers -->
+            <div class="card shadow-sm border-danger mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Reviewer Actions</h5>
+                </div>
+                <div class="card-body">
                     {% if recording.flagged %}
                     <form method="post" action="{% url 'blog_app:recording-review' pk=recording.pk %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success btn-sm w-100">Clear All Flags</button>
                     </form>
+                    {% else %}
+                    <p class="text-muted mb-0 small">No flags to clear.</p>
                     {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.is_superuser %}
+            <!-- Delete - superusers only -->
+            <div class="card shadow-sm border-dark">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Admin Actions</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'blog_app:recording-delete' pk=recording.pk %}" onsubmit="return confirm('Permanently delete this recording? This cannot be undone.')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-dark btn-sm w-100">🗑 Delete Recording</button>
+                    </form>
                 </div>
             </div>
             {% endif %}

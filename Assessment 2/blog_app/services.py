@@ -56,7 +56,7 @@ def flag_recording(*, user, recording_id, anomaly_type, description=""):
     flagged with the same anomaly type by the same user.
     Returns the newly created AnomalyFlag instance.
     """
-    if not RecordingAccessPolicy.can_review_recordings(user):
+    if not RecordingAccessPolicy.can_flag_recording(user):
         raise PermissionDenied("You do not have permission to flag recordings.")
 
     with transaction.atomic():

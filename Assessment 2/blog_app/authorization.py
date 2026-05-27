@@ -24,20 +24,18 @@ class RecordingAccessPolicy:
 
     @classmethod
     def can_view_analytics(cls, user):
-        if not cls._is_authenticated(user):
-            return False
-        return user.is_superuser or user.has_perm(cls.ANALYTICS_PERMISSION)
+        return cls._is_authenticated(user)
+
+    @classmethod
+    def can_flag_recording(cls, user):
+        return cls._is_authenticated(user)
 
     @classmethod
     def can_create_recording(cls, user):
-        if not cls._is_authenticated(user):
-            return False
-        return user.is_superuser or user.has_perm('blog_app.add_recording')
+        return cls._is_authenticated(user)
 
     @classmethod
     def scope_recordings_queryset(cls, user, queryset):
-        if cls.can_view_all_recordings(user) or cls.can_review_recordings(user):
-            return queryset
         if not cls._is_authenticated(user):
             return queryset.none()
-        return queryset.filter(user=user)
+        return queryset

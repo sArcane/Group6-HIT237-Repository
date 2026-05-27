@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Avg, Count, Q
 from django.http import Http404
@@ -32,8 +33,6 @@ class RecordingListView(LoginRequiredMixin, RecordingQuerysetMixin, View):
 				pass
 
 		if request.GET.get('flagged_only') == 'true':
-			if not RecordingAccessPolicy.can_review_recordings(request.user):
-				raise PermissionDenied('You do not have permission to review flagged recordings.')
 			queryset = queryset.flagged_or_anomalous()
 
 		species_id = request.GET.get('species')
@@ -148,3 +147,34 @@ class SpeciesAnalyticsView(LoginRequiredMixin, View):
 		}
 
 		return render(request, 'analytics.html', context)
+
+
+class RegisterView(View):
+	def get(self, request):
+		if request.user.is_authenticated:
+			return redirect('blog_app:recording-list')
+		form = UserCreationForm()
+		return render(request, 'registration/register.html', {'form': form})
+
+	def post(self, request):
+		if request.user.is_authenticated:
+			return redirect('blog_app:recording-list')
+		form = UserCreationForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Account created! You can now sign in.')
+			return redirect('login')
+		return render(request, 'registration/register.html', {'form': form})
+
+
+class RecordingDeleteView(LoginRequiredMixin, View):
+	def post(self, request, pk):
+		if not request.user.is_superuser:
+			raise PermissionDenied('Only administrators can delete recordings.')
+		try:
+			recording = Recording.objects.get(pk=pk)
+			recording.delete()
+			messages.success(request, 'Recording deleted successfully.')
+		except Recording.DoesNotExist:
+			raise Http404('Recording not found.')
+		return redirect('blog_app:recording-list')

@@ -7,6 +7,8 @@ from .views import (
     FlagRecordingView,
     ReviewRecordingView,
     SpeciesAnalyticsView,
+    RegisterView,
+    RecordingDeleteView,
 )
 
 app_name = 'blog_app'
@@ -18,4 +20,6 @@ urlpatterns = [
     path('recordings/<int:pk>/flag/', FlagRecordingView.as_view(), name='recording-flag'),
     path('recordings/<int:pk>/review/', ReviewRecordingView.as_view(), name='recording-review'),
     path('analytics/species/', SpeciesAnalyticsView.as_view(), name='species-analytics'),
+    path('accounts/register/', RegisterView.as_view(), name='register'),
+    path('recordings/<int:pk>/delete/', RecordingDeleteView.as_view(), name='recording-delete'),
 ]
