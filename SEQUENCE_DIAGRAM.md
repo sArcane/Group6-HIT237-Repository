@@ -161,7 +161,8 @@ sequenceDiagram
             else New flag
                 DB-->>Service: False
                 Service->>DB: AnomalyFlag.objects.create(...)
-                Service->>DB: recording.flagged = True; recording.save()
+                Service->>DB: recording.flagged = True
+                Service->>DB: recording.save()
                 DB-->>Service: AnomalyFlag instance
                 Service-->>View: AnomalyFlag instance
                 View-->>Reviewer: messages.success → redirect detail page
@@ -206,7 +207,8 @@ sequenceDiagram
                 View-->>Reviewer: messages.error → redirect detail page
             else Is flagged
                 Service->>DB: recording.anomaly_flags.all().delete()
-                Service->>DB: recording.flagged = False; recording.save()
+                Service->>DB: recording.flagged = False
+                Service->>DB: recording.save()
                 DB-->>Service: OK
                 Service-->>View: Recording instance
                 View-->>Reviewer: messages.success → redirect detail page
