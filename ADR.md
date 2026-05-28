@@ -383,3 +383,280 @@ Cons:
 - Focused authorization tests were added and validated:
     - 'Assessment 2/blog_app/test_authorization.py'
     - Coverage includes login requirement, owner-scoped queries, reviewer access, and analytics permission enforcement.
+
+---
+
+## ADR-010: Use of Service Layer for Recording Workflow
+
+**Status:** Accepted
+
+### Context:
+As the application now needs to handle submitting recordings, flagging recordings, and reviewing flagged recordings. Flagging a recording would require creating an anomaly flag, updating the recording as flagged, finding the user that performed the action, then making sure the database is consistent. If the logic stays in the view it would make it the views to large, forgoing Django's skinny views philosophies
+
+**Option 1: Keep Logic inside of the views**
+
+Pros:
+    - Simple to understand
+    - Less files
+
+Cons:
+    - Views become fat
+    - more difficult to test
+    - May be duplicated logic
+    - Harder to maintain
+
+**Option 2: Use function-based services (chosen)**
+
+Pros:
+    - Keeps views skinny
+    - Encapsulates workflow in a dedicated service module
+    - easier to test
+    - better readability
+
+Cons:
+    - Adds another layer to the app
+    - Could become disorganised
+
+**Option 3 Use Class-based services**
+
+Pros:
+    - Groups related services in a class
+    - Encapsulates workflow in a dedicated service module
+    - easier to test
+    - better readability
+
+Cons:
+    - Too complex for scope of the app
+
+### Decision
+A function-based service layer was created to handle the actions of submitting recordings, flagging recordings and reviewing recordings. This function later contains functions such as submit_recording(), flag_recording(), and review_recording().
+
+This makes it so that the views are still responsible for handling HTTP requests, forms, redirects adn redering templates, while the service layer is responsible for the actions that would involve multiple models or updates to the database.
+
+### Rationale
+A function-based service layer was created due to the app needing more functionality. Using this layer improves the separation of concerns while keeping the code simple for the current scope of the project. it also allows the vies to remain focused on HTTP requests while the service layers handle reusable logic.
+
+### Code Reference
+- Assessment_2/blog_app/services.py
+
+- Assessment_2/blog_app/services.py: submit_recording()
+
+- Assessment_2/blog_app/services.py: flag_recording()
+
+- Assessment_2/blog_app/services.py: review_recording()
+
+- Assessment_2/blog_app/views.py
+
+- Assessment_2/blog_app/models.py
+
+
+### Consequences
+
+Pros:
+    - Keeps views skinny
+    - makes testing the added functions easier
+    - reduces duplicated logic
+    - Clear seperation between views, services, models and Querysets
+
+Cons:
+    - Adds an extra layer to the app
+    - function based service could be insufficient if the app grows larger
+
+---
+
+## ADR-011: Exception Handling for Application Errors
+
+**Status:** Accepted
+
+### Context:
+The application is now more complex now with added features, such as users being able to submit recordings, flag recordings and review the recordings. all these features can fail for reasons such as, missing recordings, invalid speices or location data, invalid form input, failed file uploads, and permission issues. 
+
+Without structured exception handling, errors may be handled inconsistently, therefore a decsision needed to be made on how the app should handle specific errors while still working with Django's build-in form, validation, and permission handling.
+
+**Option 1: Only use generic python exception handling**
+
+Pros:
+    - Simple to implement
+    - No extra file or classes
+
+Cons:
+    - Non-descriptive error types
+    - More difficulty analysing application failiure
+    - More difficulty testing specific failiure scenarios
+    - Does not provide error codes
+
+**Option 2: Use only Django built-in exceptions**
+
+Pros:
+    - Integrates naturally with Django views, forms, and permissions
+    - Certain terms are already understood by Django
+    - Simple and reliable
+
+Cons:
+    - Some error cases still may be represented too generally
+    - Does not fully describe the projects domain errors
+
+**Option 3: Create a custom exception hierarchy for application-specific errors (chosen)**
+
+Pros:
+    - Gives clear names to domain errors
+    - Supports structerd error codes and details
+    - makes exception behaviour easier to test directly
+    - Scalable
+    - Improves documentation of expected failure cases
+
+Cons:
+    - Adds more classes
+
+### Decision
+A custom exception hierarchy was added to represent application-specific errors. A base exception was created "BlogAppExceptions" then specific exception groups were created for different parts of the applications, each of these exceptions can store a readable message, error code and a Http status code with additional details. The application still uses Django exceptions such as ValidationError and PermissionDenied in the service and views.
+
+### Rationale
+This option was chosen as the project neded clearer and more testable error handling. With the addition of the new layers and feature more failiure cases woould appear. The custom exception hierarchy gives the app a place to define these errors, further supporting the separation of concerns. Django's built-in exceptions are still used as PermissionDenied and ValidationError are already understood by Django.
+
+### Code Reference
+- Assessment 2/blog_app/exceptions.py
+
+- Assessment 2/blog_app/exceptions.py: BlogAppException
+
+- Assessment 2/blog_app/exceptions.py: RecordingNotFound
+
+- Assessment 2/blog_app/exceptions.py: RecordingValidationError
+
+- Assessment 2/blog_app/exceptions.py: InvalidConfidenceScore
+
+- Assessment 2/blog_app/exceptions.py: SpeciesNotFound
+
+- Assessment 2/blog_app/exceptions.py: LocationNotFound
+
+- Assessment 2/blog_app/exceptions.py: InvalidFormData
+
+- Assessment 2/blog_app/exceptions.py: FileUploadError
+
+- Assessment 2/blog_app/services.py
+
+- Assessment 2/blog_app/views.py
+
+- Assessment 2/blog_app/test_exceptions.py
+
+### Consequences
+
+Pros:
+    - Gives app clear structure for application specific errors
+    - Makes errors easier to understand and document
+    - Allows exceptions to include error codes, status codes, and extra details
+    - Makes exceptions independently testable
+
+Cons:
+    - Adds another file
+    - There is still the use of built-in Django exceptions
+
+---
+
+## ADR-012: Testing suite for models, service, views, permissions, and exceptions
+
+**Status:** Accepted
+
+### Context:
+A testing suite needed to be made that covers the models, services, views and permissions as the app has grown. Testing is crucial now that many parts of the app depend on each other.
+
+**Option 1: Manually test the application in the browser**
+
+Pros:
+    - Easy to do during development
+    - Does not require writing test code
+    - Useful for checking visual layout
+Cons:
+    - Easy to miss edge-cases
+    - Does not prove service logic works independently
+    - Does not demonstrate permissions
+    - Unfitting for scope of the app
+
+**Option 2: Use a layerd Django test suite (Chosen)**
+
+Pros:
+    - tests models. querysets, views, services, permissions, and exceptions
+    - provides stronger evidence of working architecture
+    - allows service functions to be tested independently
+    - more explicit permission boundries
+
+Cons:
+    - takes longer to write and maintain
+    - tests must be updated when business rules change
+
+### Decision
+A layered Django test suite was used, which covers different layers of the application such as models, querysets, services, views, autherisation and permissions, and exceptions.
+
+### Rationale
+This option was chosen as the app now contains serveral architectural layers, requiring a layered Django test suite, being able to test each layer independently is important as it allows us to verify that each layer works correctly
+
+### Code Reference
+- Assessment 2/blog_app/tests.py
+
+- Assessment 2/blog_app/tests.py: RecordingQuerysetTests
+
+- Assessment 2/blog_app/tests.py: RecordingViewTests
+
+- Assessment 2/blog_app/tests.py: ServiceTests
+
+- Assessment 2/blog_app/test_authorization.py
+
+- Assessment 2/blog_app/test_authorization.py: AuthorizationArchitectureTests
+
+- Assessment 2/blog_app/test_exceptions.py
+
+### Consequences
+Pros:
+    - provides evidence that service layer works independently form the views
+    - tests reusable queryset behaviours
+    - tests custom exception hierarchy
+    - makes application safer to change for further development
+
+Cons:
+    - more test files must be maintained
+    - tests may fail if rules change without updating tests
+    - some behaviours still may be better to test manually on a browser
+
+---
+
+## ADR-013: Addition of authenticated recording and review features
+
+**Status:** Accepted
+
+### Context:
+A new feature was required to support a more realistic workflow where users can log in, submit recordings, flag suspicious or anomalous recordings, and allow reviewer-style users to managae or review flagged content
+
+**Option 1: Add authenticated recording submissions and review workflows**
+
+Pros:
+    - extends on the original purpose of the app
+    - Makes authentication meaningful as users can own submitted recordings
+    - supports permission boundries between normal users and superusers
+Cons:
+    - requires changes in models, views, services, templates, permissions, and tests
+
+
+### Decision
+These features were added as they extend on the orignal purpose of the app, this now supports a more coherent workflow where users can interact with teh recordings, authenticated users can submit recordings, and super users can directly manage flagged recordings such as deleting them.
+
+### Rationale
+These features were added as they improve the functionality of the app
+
+### Code Reference
+- Assessment 2/accounts/templates/registration/login.html
+
+- Assessment 2/accounts/templates/registration/register.html
+
+- Assessment 2/accounts/views.py
+
+- Assessment 2/accounts/views.py: RegisterView
+
+### Consequences
+Pros:
+    - Feature growth from previous iteration
+    - Give a purpose to authentication
+    - gives service layer meaningful workflow to encapsulate
+
+Cons:
+    - increases complexity of the application
+    - requires more carefule permission handling

@@ -46,81 +46,18 @@ Task Breakdown:
 -	A test suite that covers the models, services, views, and permission boundaries 
 -	An updated project plan, contract and diagrams
 
-Milestones and Checkpoints
+The assessment was started on the 25th of May first with the allocations of tasks, such as exception handling, testing, authentication and service layer and documentation.
 
-Milestone 1 
+Roles of each member:
 
-25th – 30th of April
+Service layers: Harvey Wiltshire
 
--	Plan the scope of the project and the new features
--	Review ADR and Previous application
--	Assign roles
+User authentication: Christian Jay Guarino Borja
 
-Checkpoint 1
+Exception handling: Trung Hieu Jamie Ngo
 
-30th of April
+Documentation: Anh Khoa Pham
 
--	Plan and roles finalized
+Each task was completed sequentially with user authentication being completed first then following service layers, then exception handling and testing, then documentation. Throughout this assessment ideas and concepts for the ADRs were shared with the member handling the documentation. Each member also fulfilled other responsibilities such as troubleshooting, adding new features, creating and updating suplementary materials, and verifying the workings of the app.
 
-Milestone 2
-
-1st-10th of May
-
--	Create the authentication system
--	Create the service layer architecture
-
-Checkpoint 2
-
-10th of May
-
--	Review of the newly created systems and architectures
--	Updated ADR
-
-Milestone 3
-
-11th-15th of May
-
--	Create and new planned features
--	Add Exception handling
-
-Checkpoint 3
-
-15th of May
-
--	New features added
--	Exception handling working
--	Updated ADR
-
-Milestone 4
-
-16th-20th of May
-
--	Integrate previously created features and models
--	Run tests of the application and its features
--	Compile a test suite
--	Update ADR with testing strategy
-
-Checkpoint 4
-
-20th of May
-
--	Tests have been run and any issues have been fixed
--	Update ADR
-
-Milestone 5 
-
-21st – 25th of May
-
--	Finalize the documentation and application
--	Create a walkthrough of the code
--	Submit material
-
-Checkpoint 5
-
-25th of May
-
--	Walkthrough has been create
--	The application and documentation have been reviewed
--	ADR is finalized
--	Work has been submitted
-
+On the 28th of May the the project will recive its final review by memebers and will be submitted.
