@@ -1,13 +1,15 @@
 from datetime import timedelta
 from tempfile import TemporaryDirectory
 
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import AnonymousUser, Permission, User
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import AnomalyFlag, Location, Recording, Species
+from .services import flag_recording, review_recording, submit_recording
 
 
 class MediaIsolatedTestCase(TestCase):
@@ -126,3 +128,143 @@ class RecordingViewTests(MediaIsolatedTestCase):
 		self.assertEqual(summary['total_recordings'], 2)
 		self.assertEqual(summary['flagged_count'], 1)
 		self.assertGreaterEqual(len(species_rankings), 2)
+
+
+class ServiceTests(MediaIsolatedTestCase):
+	def setUp(self):
+		super().setUp()
+		self.user = User.objects.create_user(username='submitter', password='pass12345')
+		self.reviewer = User.objects.create_user(username='reviewer2', password='pass12345')
+		review_perm = Permission.objects.get(codename='review_recordings')
+		self.reviewer.user_permissions.add(review_perm)
+
+		self.species = Species.objects.create(
+			name='Kookaburra', scientific_name='Dacelo novaeguineae', conservation_status='LC'
+		)
+		self.location = Location.objects.create(name='Botanic Gardens')
+
+	def _audio(self, name='test.wav'):
+		return SimpleUploadedFile(name, b'audio-bytes', content_type='audio/wav')
+
+	def _make_recording(self, name='rec.wav', flagged=False):
+		return Recording.objects.create(
+			user=self.user,
+			species=self.species,
+			location=self.location,
+			audio_file=self._audio(name),
+			date_recorded=timezone.now() - timedelta(hours=1),
+			confidence_score=0.75,
+			flagged=flagged,
+		)
+
+	# --- submit_recording ---
+
+	def test_submit_recording_creates_recording(self):
+		recording = submit_recording(
+			user=self.user,
+			species_id=self.species.pk,
+			location_id=self.location.pk,
+			audio_file=self._audio(),
+			date_recorded=timezone.now() - timedelta(hours=1),
+			confidence_score=0.88,
+		)
+		self.assertIsNotNone(recording.pk)
+		self.assertEqual(recording.user, self.user)
+		self.assertEqual(recording.species, self.species)
+		self.assertEqual(recording.location, self.location)
+
+	def test_submit_recording_raises_permission_denied_for_anonymous(self):
+		with self.assertRaises(PermissionDenied):
+			submit_recording(
+				user=AnonymousUser(),
+				species_id=self.species.pk,
+				location_id=self.location.pk,
+				audio_file=self._audio('anon.wav'),
+				date_recorded=timezone.now(),
+				confidence_score=0.5,
+			)
+
+	def test_submit_recording_raises_validation_error_for_invalid_species(self):
+		with self.assertRaises(ValidationError):
+			submit_recording(
+				user=self.user,
+				species_id=99999,
+				location_id=self.location.pk,
+				audio_file=self._audio('bad_species.wav'),
+				date_recorded=timezone.now(),
+				confidence_score=0.5,
+			)
+
+	def test_submit_recording_raises_validation_error_for_invalid_location(self):
+		with self.assertRaises(ValidationError):
+			submit_recording(
+				user=self.user,
+				species_id=self.species.pk,
+				location_id=99999,
+				audio_file=self._audio('bad_loc.wav'),
+				date_recorded=timezone.now(),
+				confidence_score=0.5,
+			)
+
+	# --- flag_recording ---
+
+	def test_flag_recording_creates_anomaly_flag_and_marks_flagged(self):
+		recording = self._make_recording('flag_happy.wav')
+		flag = flag_recording(
+			user=self.user,
+			recording_id=recording.pk,
+			anomaly_type='DISTORTION',
+			description='Clipping at start',
+		)
+		self.assertIsNotNone(flag.pk)
+		recording.refresh_from_db()
+		self.assertTrue(recording.flagged)
+
+	def test_flag_recording_raises_permission_denied_for_anonymous(self):
+		recording = self._make_recording('flag_anon.wav')
+		with self.assertRaises(PermissionDenied):
+			flag_recording(
+				user=AnonymousUser(),
+				recording_id=recording.pk,
+				anomaly_type='DISTORTION',
+			)
+
+	def test_flag_recording_raises_validation_error_for_missing_recording(self):
+		with self.assertRaises(ValidationError):
+			flag_recording(
+				user=self.user,
+				recording_id=99999,
+				anomaly_type='DISTORTION',
+			)
+
+	def test_flag_recording_raises_validation_error_for_duplicate_flag(self):
+		recording = self._make_recording('flag_dup.wav')
+		flag_recording(user=self.user, recording_id=recording.pk, anomaly_type='DISTORTION')
+		with self.assertRaises(ValidationError):
+			flag_recording(user=self.user, recording_id=recording.pk, anomaly_type='DISTORTION')
+
+	# --- review_recording ---
+
+	def test_review_recording_clears_flags_and_marks_reviewed(self):
+		recording = self._make_recording('review_happy.wav', flagged=True)
+		AnomalyFlag.objects.create(
+			recording=recording, flagged_by=self.user, anomaly_type='DISTORTION', description='Test'
+		)
+		result = review_recording(user=self.reviewer, recording_id=recording.pk)
+		result.refresh_from_db()
+		self.assertFalse(result.flagged)
+		self.assertEqual(result.anomaly_flags.count(), 0)
+
+	def test_review_recording_raises_permission_denied_for_non_reviewer(self):
+		recording = self._make_recording('review_perm.wav', flagged=True)
+		with self.assertRaises(PermissionDenied):
+			review_recording(user=self.user, recording_id=recording.pk)
+
+	def test_review_recording_raises_validation_error_for_missing_recording(self):
+		with self.assertRaises(ValidationError):
+			review_recording(user=self.reviewer, recording_id=99999)
+
+	def test_review_recording_raises_validation_error_for_unflagged_recording(self):
+		recording = self._make_recording('review_unflagged.wav', flagged=False)
+		with self.assertRaises(ValidationError):
+			review_recording(user=self.reviewer, recording_id=recording.pk)

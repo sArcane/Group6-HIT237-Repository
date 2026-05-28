@@ -59,7 +59,7 @@ class AuthorizationArchitectureTests(MediaIsolatedTestCase):
     def test_recording_list_requires_login(self):
         response = self.client.get(reverse('blog_app:recording-list'))
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/admin/login/', response.url)
+        self.assertIn('/accounts/login/', response.url)
 
     def test_owner_only_sees_own_recordings_without_global_permission(self):
         self.client.login(username='owner', password='pass12345')

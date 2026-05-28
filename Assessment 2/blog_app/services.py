@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
+import os
 
 from .authorization import RecordingAccessPolicy
 from .models import AnomalyFlag, Recording, Species, Location
@@ -12,6 +13,11 @@ def submit_recording(*, user, species_id, location_id, audio_file, date_recorded
     Validates that the user has create permission, then writes the Recording
     row. Wrapped in transaction.atomic() so any unexpected DB failure rolls
     back cleanly.
+
+    MOV files uploaded from Apple devices are ISOBMFF-compatible with MP4;
+    the extension is changed to .mp4 before saving so browsers that support
+    video/mp4 (Chrome, Edge, Firefox) can play the audio track without any
+    re-encoding.
 
     Raises PermissionDenied if the user lacks create permission.
     Returns the newly created Recording instance.
@@ -28,6 +34,11 @@ def submit_recording(*, user, species_id, location_id, audio_file, date_recorded
         location = Location.objects.get(pk=location_id)
     except Location.DoesNotExist:
         raise ValidationError("Selected location does not exist.")
+
+    # MOV containers from Apple devices share the ISOBMFF format with MP4.
+    # Serving as video/mp4 lets Chrome/Edge/Firefox decode the audio track.
+    if audio_file.name.lower().endswith('.mov'):
+        audio_file.name = os.path.splitext(audio_file.name)[0] + '.mp4'
 
     with transaction.atomic():
         recording = Recording.objects.create(

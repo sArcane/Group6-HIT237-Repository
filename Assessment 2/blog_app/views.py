@@ -81,8 +81,11 @@ class RecordingCreateView(LoginRequiredMixin, View):
 					confidence_score=form.cleaned_data['confidence_score'],
 				)
 				return redirect('blog_app:recording-detail', pk=recording.pk)
-			except (ValidationError, PermissionDenied) as e:
+			except PermissionDenied as e:
 				messages.error(request, str(e))
+				return redirect('blog_app:recording-list')
+			except ValidationError as e:
+				messages.error(request, e.message)
 				return redirect('blog_app:recording-list')
 		context = {'form': form, 'errors': form.errors}
 		return render(request, 'recording_form.html', context)
